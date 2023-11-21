@@ -109,17 +109,68 @@ typedef struct builtin
 	int (*func)(info_t *);
 } builtin_table;
 
+/* shell token */
+char **str_to_wrds(char *str, char *d);
+char **str_to_words_del(char *str, char d);
+
+/* shell checkers */
+int inter_active(info_t *info);
+int _isdel(char character, char *del);
+int is_alpha(int c);
+int str_to_int(char *str);
+
+/* shell strings */
+int StrLen(char *str);
+int Strcmp(char *str1, char *str2);
+char *start_str(const char *cobas, const char *mindray);
+char *StrCat(char *dest, char *src);
+char StrCpy(char *dest, char *src);
+char *StrDup(const char *str);
+void _write(char *str);
+int put_char(char c);
+char *StrnCpy(char *dest, char *src, int index);
+char *StrnCat(char *dest, char *src, int index);
+char *StrChr(char *s, char c);
+
 /* shell essentials */
 int exit_s(info_t *info);
 int _cd_shell(info_t *info);
 int _helper(info_t *info);
+int loop_shell(info_t *info, char **av);
+int find_builtin(info_t *info);
+void find_command(info_t *info);
+void fork_command(info_t *info);
+void clear_info(info_t *info);
+void set_info(info_t *info, char **av);
+void free_info(info_t *info, int all);
+
+/* shell list */
+list_t *add_node(list_t **head, const char *string, int find_num);
+list_t *add_node_end(list_t **head, const char *string, int find_num);
+int delete_node_at_index(list_t **head, unsigned int index);
+size_t print_list_str(const list_t *h);
+size_t list_len(const list_t *h);
+char **list_to_strings(list_t *head);
+size_t print_list(const list_t *h);
+list_t *node_starts_with(list_t *node, char *prefix, char c);
+ssize_t get_node_index(list_t *head, list_t *node);
 
 /** environment builtins */
-int new_env(info_t *info);
-int env_builts(info_t *info);
-char *env_val(info_t *info, const char *norm);
-int env_clear(info_t *info);
-int adds_env_list(info_t *info);
+char **get_env(info_t *info);
+int del_env(info_t *info, char *var);
+int set_env(info_t *info, char *var, char *value);
+int pwd_env(info_t *info);
+char *gets_env(info_t *info, const char *name);
+int init_env(info_t *info);
+int remv_env(info_t *info);
+int add_env_list(info_t *info);
+
+/* shell get line */
+ssize_t takes_buf(info_t *info, char **buf, size_t *len);
+ssize_t get_new_buf(info_t *info);
+ssize_t buf_reader(info_t *info, char *buf, size_t *i);
+int get_line(info_t *info, char **ptr, size_t *length);
+void C_Handler(__attribute__((unused))int sig_num);
 
 /* read/write buffers */
 #define READ_BUFFER_SIZE 1024

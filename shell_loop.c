@@ -1,7 +1,11 @@
 #include "simple_shell.h"
 
+int loop_shell(info_t *info, char **av);
+int find_builtin(info_t *info);
+void find_command(info_t *info);
+void fork_command(info_t *info);
 /**
- * hsh - main shell loop
+ * loop_shell - main shell loop
  * @info: the parameter & return info struct
  * @av: the argument vector from main()
  *
@@ -15,7 +19,7 @@ int loop_shell(info_t *info, char **av)
 	while (r != -1 && builtin_ret != -2)
 	{
 		clear_info(info);
-		if (interactive(info))
+		if (inter_active(info))
 			_puts("$ ");
 		_eputchar(BUF_FLUSH);
 		r = get_input(info);
@@ -26,13 +30,13 @@ int loop_shell(info_t *info, char **av)
 			if (builtin_ret == -1)
 				find_command(info);
 		}
-		else if (interactive(info))
+		else if (inter_active(info))
 			_putchar('\n');
 		free_info(info, 0);
 	}
 	write_history(info);
 	free_info(info, 1);
-	if (!interactive(info) && info->status)
+	if (!inter_active(info) && info->status)
 		exit(info->status);
 	if (builtin_ret == -2)
 	{

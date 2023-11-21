@@ -1,5 +1,9 @@
 #include "simple_shell.h"
 
+void clear_info(info_t *info);
+void set_info(info_t *info, char **av);
+void free_info(info_t *info, int all);
+
 /**
  * clear_info - initializes info_t struct
  * @info: struct address
@@ -31,7 +35,7 @@ void set_info(info_t *info, char **av)
 			info->argum_arr = malloc(sizeof(char *) * 2);
 			if (info->argum_arr)
 			{
-				info->argum_arr[0] = string_duplicate(info->arg);
+				info->argum_arr[0] = StrDup(info->arg);
 				info->argum_arr[1] = NULL;
 			}
 		}

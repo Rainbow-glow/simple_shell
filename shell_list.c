@@ -1,5 +1,10 @@
 #include "simple_shell.h"
 
+list_t *add_node(list_t **head, const char *string, int find_num);
+list_t *add_node_end(list_t **head, const char *string, int find_num);
+int delete_node_at_index(list_t **head, unsigned int index);
+size_t print_list_str(const list_t *h);
+
 /**
  * add_node - adds a node to the start of the list
  * @head: address of pointer to head node
