@@ -133,9 +133,16 @@ char *StrnCat(char *dest, char *src, int index);
 char *StrChr(char *s, char c);
 
 /* shell essentials */
-int exit_s(info_t *info);
-int _cd_shell(info_t *info);
-int _helper(info_t *info);
+int exit_me(info_t *info);
+int cd_me(info_t *info);
+int helper_me(info_t *info);
+int myhistori(info_t *info);
+int remv_alias(info_t *info, char *string);
+int init_alias(info_t *info, char *string);
+int puts_alias(list_t *node);
+int alias_mem(info_t *info);
+
+/* shellessentials */
 int loop_shell(info_t *info, char **av);
 int find_builtin(info_t *info);
 void find_command(info_t *info);
@@ -171,6 +178,11 @@ ssize_t get_new_buf(info_t *info);
 ssize_t buf_reader(info_t *info, char *buf, size_t *i);
 int get_line(info_t *info, char **ptr, size_t *length);
 void C_Handler(__attribute__((unused))int sig_num);
+
+/* shell parser */
+int exe_c(info_t *info, char *path);
+char *dupli_c(char *pathstr, int start, int stop);
+char *find_pathstr(info_t *info, char *pathstr, char *cmd);
 
 /* read/write buffers */
 #define READ_BUFFER_SIZE 1024
