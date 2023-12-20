@@ -1,5 +1,10 @@
 #include "simple_shell.h"
 
+char *get_history_file(info_t *info);
+int write_history(info_t *info);
+int read_history(info_t *info);
+int build_history_list(info_t *info, char *buf, int line_count);
+int renumber_history(info_t *info);
 /**
  * get_history_file - gets the history file
  * @info: parameter struct
@@ -11,16 +16,16 @@ char *get_history_file(info_t *info)
 {
 	char *buf, *dir;
 
-	dir = _getenv(info, "HOME=");
+	dir = get_env(info, "HOME=");
 	if (!dir)
 		return (NULL);
-	buf = malloc(sizeof(char) * (_strlen(dir) + _strlen(HIST_FILE) + 2));
+	buf = malloc(sizeof(char) * (StrLen(dir) + StrLen(HIST_FILE) + 2));
 	if (!buf)
 		return (NULL);
 	buf[0] = 0;
-	_strcpy(buf, dir);
-	_strcat(buf, "/");
-	_strcat(buf, HIST_FILE);
+	StrCpy(buf, dir);
+	StrCat(buf, "/");
+	StrCat(buf, HIST_FILE);
 	return (buf);
 }
 
@@ -43,7 +48,7 @@ int write_history(info_t *info)
 	free(filename);
 	if (fd == -1)
 		return (-1);
-	for (node = info->history; node; node = node->next)
+	for (node = info->hist_node; node; node = node->next_node)
 	{
 		_puts_fd(node->str, fd);
 		_put_fd('\n', fd);
@@ -95,11 +100,11 @@ int read_history(info_t *info)
 	if (last != i)
 		build_history_list(info, buf + last, line_count++);
 	free(buf);
-	info->histcount = line_count;
-	while (info->histcount-- >= HIST_MAX)
-		delete_node_at_index(&(info->history), 0);
+	info->hist_count = line_count;
+	while (info->hist_count-- >= HIST_MAX)
+		delete_node_at_index(&(info->hist_node), 0);
 	renumber_history(info);
-	return (info->histcount);
+	return (info->hist_count);
 }
 
 /**
@@ -110,16 +115,17 @@ int read_history(info_t *info)
  *
  * Return: Always 0
  */
+
 int build_history_list(info_t *info, char *buf, int line_count)
 {
 	list_t *node = NULL;
 
-	if (info->history)
-		node = info->history;
+	if (info->hist_node)
+		node = info->hist_node;
 	add_node_end(&node, buf, line_count);
 
-	if (!info->history)
-		info->history = node;
+	if (!info->hist_node)
+		info->hist_node = node;
 	return (0);
 }
 
@@ -131,13 +137,13 @@ int build_history_list(info_t *info, char *buf, int line_count)
  */
 int renumber_history(info_t *info)
 {
-	list_t *node = info->history;
+	list_t *node = info->hist_node;
 	int i = 0;
 
 	while (node)
 	{
-		node->num = i++;
-		node = node->next;
+		node->find_num = i++;
+		node = node->next_node;
 	}
-	return (info->histcount = i);
+	return (info->hist_count = i);
 }

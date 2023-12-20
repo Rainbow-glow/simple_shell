@@ -14,21 +14,21 @@ int exit_me(info_t *info)
 {
 	int check;
 
-	if (info->argv[1])  /* If there is an exit arguement */
+	if (info->argum_arr[1])  /* If there is an exit arguement */
 	{
-	`	check = _erratoi(info->argv[1]);
+		check = _erratoi(info->argum_arr[1]);
 		if (check == -1)
 		{
 			info->status = 2;
 			print_error(info, "Illegal number: ");
-			_eputs(info->argv[1]);
-			_eputchar('\n');
+			puts(info->argum_arr[1]);
+			putchar('\n');
 			return (1);
 		}
-		info->err_num = _erratoi(info->argv[1]);
+		info->error_code = _erratoi(info->argum_arr[1]);
 		return (-2);
 	}
-	info->err_num = -1;
+	info->error_code = -1;
 	return (-2);
 }
 
@@ -46,7 +46,7 @@ int cd_me(info_t *info)
 	s = getcwd(buffer, 1024);
 	if (!s)
 		_write("TODO: >>getcwd failure emsg here<<\n");
-	if (!info->argv[1])
+	if (!info->argum_arr[1])
 	{
 		dir = pwd_env(info, "HOME=");
 		if (!dir)
@@ -55,7 +55,7 @@ int cd_me(info_t *info)
 		else
 			chdir_ret = chdir(dir);
 	}
-	else if (StrCmp(info->argv[1], "-") == 0)
+	else if (Strcmp(info->argum_arr[1], "-") == 0)
 	{
 		if (!pwd_env(info, "OLDPWD="))
 		{
@@ -68,11 +68,11 @@ int cd_me(info_t *info)
 			chdir((dir = pwd_env(info, "OLDPWD=")) ? dir : "/");
 	}
 	else
-		chdir_ret = chdir(info->argv[1]);
+		chdir_ret = chdir(info->argum_arr[1]);
 	if (chdir_ret == -1)
 	{
 		print_error(info, "cd failure ");
-		_eputs(info->argv[1]), _eputchar('\n');
+		_eputs(info->argum_arr[1]), _eputchar('\n');
 	}
 	else
 	{
@@ -92,7 +92,7 @@ int helper_me(info_t *info)
 {
 	char **arg_array;
 
-	arg_array = info->argv;
+	arg_array = info->argum_arr;
 	_write("help call works. Function not yet implemented \n");
 	if (0)
 		_write(*arg_array); /* temp att_unused workaround */

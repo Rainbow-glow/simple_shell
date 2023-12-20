@@ -12,10 +12,10 @@ int set_env(info_t *info, char *var, char *value);
  */
 char **get_env(info_t *info)
 {
-	if (!info->environ || info->env_changed)
+	if (!info->environ || info->changed)
 	{
-		info->environ = list_to_strings(info->env);
-		info->env_changed = 0;
+		info->environ = list_to_strings(info->env_copy);
+		info->changed = 0;
 	}
 
 	return (info->environ);
@@ -30,7 +30,7 @@ char **get_env(info_t *info)
  */
 int del_env(info_t *info, char *var)
 {
-	list_t *node = info->env;
+	list_t *node = info->env_copy;
 	size_t i = 0;
 	char *p;
 
@@ -39,18 +39,18 @@ int del_env(info_t *info, char *var)
 
 	while (node)
 	{
-		p = start_str(node->str, var);
+		p = start_str(node->string, var);
 		if (p && *p == '=')
 		{
-			info->env_changed = delete_node_at_index(&(info->env), i);
+			info->changed = delete_node_at_index(&(info->env_copy), i);
 			i = 0;
-			node = info->env;
+			node = info->env_copy;
 			continue;
 		}
-		node = node->next;
+		node = node->next_node;
 		i++;
 	}
-	return (info->env_changed);
+	return (info->changed);
 }
 
 /**
@@ -77,21 +77,21 @@ int set_env(info_t *info, char *var, char *value)
 	StrCpy(buf, var);
 	StrCat(buf, "=");
 	StrCat(buf, value);
-	node = info->env;
+	node = info->env_copy;
 	while (node)
 	{
-		p = start_str(node->str, var);
+		p = start_str(node->strng, var);
 		if (p && *p == '=')
 		{
-			free(node->str);
-			node->str = buf;
-			info->env_changed = 1;
+			free(node->string);
+			node->string = buf;
+			info->changed = 1;
 			return (0);
 		}
-		node = node->next;
+		node = node->next_node;
 	}
-	add_node_end(&(info->env), buf, 0);
+	add_node_end(&(info->env_copy), buf, 0);
 	free(buf);
-	info->env_changed = 1;
+	info->changed = 1;
 	return (0);
 }

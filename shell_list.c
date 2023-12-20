@@ -26,14 +26,14 @@ list_t *add_node(list_t **head, const char *string, int find_num)
 	new_head->find_num = find_num;
 	if (string)
 	{
-		new_head->string = _strdup(string);
+		new_head->string = StrDup(string);
 		if (!new_head->string)
 		{
 			free(new_head);
 			return (NULL);
 		}
 	}
-	new_head->next = *head;
+	new_head->next_node = *head;
 	*head = new_head;
 	return (new_head);
 }
@@ -61,7 +61,7 @@ list_t *add_node_end(list_t **head, const char *string, int find_num)
 	new_node->find_num = find_num;
 	if (string)
 	{
-		new_node->string = _strdup(string);
+		new_node->string = StrDup(string);
 		if (!new_node->string)
 		{
 			free(new_node);
@@ -70,9 +70,9 @@ list_t *add_node_end(list_t **head, const char *string, int find_num)
 	}
 	if (node)
 	{
-		while (node->next)
-			node = node->next;
-		node->next = new_node;
+		while (node->next_node)
+			node = node->next_node;
+		node->next_node = new_node;
 	}
 	else
 		*head = new_node;
@@ -93,7 +93,7 @@ size_t print_list_str(const list_t *h)
 	{
 		_puts(h->string ? h->string : "(nil)");
 		_puts("\n");
-		h = h->next;
+		h = h->next_node;
 		i++;
 	}
 	return (i);
@@ -117,7 +117,7 @@ int delete_node_at_index(list_t **head, unsigned int index)
 	if (!index)
 	{
 		node = *head;
-		*head = (*head)->next;
+		*head = (*head)->next_node;
 		free(node->string);
 		free(node);
 		return (1);
@@ -127,14 +127,14 @@ int delete_node_at_index(list_t **head, unsigned int index)
 	{
 		if (i == index)
 		{
-			prev_node->next = node->next;
+			prev_node->next_node = node->next_node;
 			free(node->string);
 			free(node);
 			return (1);
 		}
 		i++;
 		prev_node = node;
-		node = node->next;
+		node = node->next_node;
 	}
 	return (0);
 }
@@ -155,7 +155,7 @@ void free_list(list_t **head_ptr)
 	node = head;
 	while (node)
 	{
-		next_node = node->next;
+		next_node = node->next_node;
 		free(node->string);
 		free(node);
 		node = next_node;

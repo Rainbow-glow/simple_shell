@@ -35,8 +35,9 @@ int remv_alias(info_t *info, char *string)
 		return (1);
 	c = *p;
 	*p = 0;
-	ret = delete_node_at_index(&(info->alias),
-		get_node_index(info->alias, node_starts_with(info->alias, string, -1)));
+	ret = delete_node_at_index(&(info->alias_node),
+		get_node_index(info->alias_node, 
+			node_starts_with(info->alias_node, string, -1)));
 	*p = c;
 	return (ret);
 }
@@ -59,7 +60,7 @@ int init_alias(info_t *info, char *string)
 		return (remv_alias(info, string));
 
 	remv_alias(info, string);
-	return (add_node_end(&(info->alias), string, 0) == NULL);
+	return (add_node_end(&(info->alias_node), string, 0) == NULL);
 }
 
 /**
@@ -74,9 +75,9 @@ int puts_alias(list_t *node)
 
 	if (node)
 	{
-		p = _StrChr(node->string, '=');
+		p = StrChr(node->string, '=');
 		for (a = node->string; a <= p; a++)
-			_putchar(*a);
+			putchar(*a);
 		put_char('\'');
 		_write(p + 1);
 		_write("'\n");
@@ -99,7 +100,7 @@ int alias_mem(info_t *info)
 
 	if (info->argum_count == 1)
 	{
-		node = info->alias;
+		node = info->alias_node;
 		while (node)
 		{
 			puts_alias(node);
@@ -113,7 +114,8 @@ int alias_mem(info_t *info)
 		if (p)
 			init_alias(info, info->argum_arr[i]);
 		else
-			put_alias(node_starts_with(info->alias, info->argum_arr[i], '='));
+			puts_alias(node_starts_with(info->alias_node,
+						info->argum_arr[i], '='));
 	}
 
 	return (0);

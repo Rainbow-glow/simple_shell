@@ -51,7 +51,7 @@ int init_env(info_t *info)
 {
 	if (info->argum_count != 3)
 	{
-		_eputs("Incorrect number of arguments\n");
+		puts("Incorrect number of arguments\n");
 		return (1);
 	}
 	if (set_env(info, info->argum_arr[1], info->argum_arr[2]))

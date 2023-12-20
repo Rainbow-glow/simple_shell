@@ -20,9 +20,9 @@ int loop_shell(info_t *info, char **av)
 	{
 		clear_info(info);
 		if (inter_active(info))
-			_puts("$ ");
-		_eputchar(BUF_FLUSH);
-		r = get_input(info);
+			puts("$ ");
+		putchar(BUF_FLUSH);
+		r = get_new_buf(info);
 		if (r != -1)
 		{
 			set_info(info, av);
@@ -31,7 +31,7 @@ int loop_shell(info_t *info, char **av)
 				find_command(info);
 		}
 		else if (inter_active(info))
-			_putchar('\n');
+			putchar('\n');
 		free_info(info, 0);
 	}
 	write_history(info);
@@ -60,19 +60,19 @@ int find_builtin(info_t *info)
 {
 	int i, built_in_ret = -1;
 	builtin_table builtintbl[] = {
-		{"exit", my_exit},
-		{"env", my_env},
-		{"help", my_help},
-		{"history", my_history},
+		{"exit", exit_me},
+		{"env", pwd_env},
+		{"help", helper_me},
+		{"history", my_histori},
 		{"setenv", my_setenv},
 		{"unsetenv", my_unsetenv},
-		{"cd", my_cd},
-		{"alias", my_alias},
+		{"cd", cd_me},
+		{"alias", alias_mem},
 		{NULL, NULL}
 	};
 
 	for (i = 0; builtintbl[i].type; i++)
-		if (_strcmp(info->argv[0], builtintbl[i].type) == 0)
+		if(Strcmp(info->argum_arr[0], builtintbl[i].type) == 0)
 		{
 			info->line_count++;
 			built_in_ret = builtintbl[i].func(info);
@@ -92,30 +92,30 @@ void find_command(info_t *info)
 	char *path = NULL;
 	int i, k;
 
-	info->path = info->argv[0];
+	info->path_finder = info->argum_arr[0];
 	if (info->line_count_flag == 1)
 	{
 		info->line_count++;
 		info->line_count_flag = 0;
 	}
-	for (i = 0, k = 0; info->arg[i]; i++)
-		if (!is_delim(info->arg[i], " \t\n"))
+	for (i = 0, k = 0; info->argum[i]; i++)
+		if (!_isdel(info->argum[i], " \t\n"))
 			k++;
 	if (!k)
 		return;
 
-	path = find_path(info, _getenv(info, "PATH="), info->argv[0]);
+	path = find_pathstr(info, gets_env(info, "PATH="), info->argum_arr[0]);
 	if (path)
 	{
-		info->path = path;
+		info->path_finder = path;
 		fork_command(info);
 	}
 	else
 	{
-		if ((interactive(info) || _getenv(info, "PATH=")
-			|| info->argv[0][0] == '/') && is_cmd(info, info->argv[0]))
+		if ((inter_active(info) || gets_env(info, "PATH=")
+			|| info->argum_arr[0][0] == '/') && exe_c(info, info->argum_arr[0]))
 			fork_command(info);
-		else if (*(info->arg) != '\n')
+		else if (*(info->argim) != '\n')
 		{
 			info->status = 127;
 			print_error(info, "not found\n");
@@ -142,7 +142,7 @@ void fork_command(info_t *info)
 	}
 	if (child_pid == 0)
 	{
-		if (execve(info->path, info->argv, get_environ(info)) == -1)
+		if (execve(info->path_finder, info->argum_arr, get_env(info)) == -1)
 		{
 			free_info(info, 1);
 			if (errno == EACCES)

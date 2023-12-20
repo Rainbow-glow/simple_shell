@@ -58,7 +58,7 @@ typedef struct liststr
  *@argum_count: the argument count
  *@line_count: the error count
  *@error_code: the error code for exit()s
- *@line_count: if on count this line of input
+ *@line_count_flag: if on count this line of input
  *@file_name: the program filename
  *@env_copy: linked list local copy of environ
  *@hist_node: the history node
@@ -79,7 +79,7 @@ typedef struct passinfo
 	int argum_count;
 	unsigned int line_count;
 	int error_code;
-	int line_count;
+	int line_count_flag;
 	char *file_name;
 	list_t *env_copy;
 	list_t *hist_node;
@@ -150,6 +150,13 @@ void fork_command(info_t *info);
 void clear_info(info_t *info);
 void set_info(info_t *info, char **av);
 void free_info(info_t *info, int all);
+
+/* shell history */
+char *get_history_file(info_t *info);
+int write_history(info_t *info);
+int read_history(info_t *info);
+int build_history_list(info_t *info, char *buf, int line_count);
+int renumber_history(info_t *info);
 
 /* shell list */
 list_t *add_node(list_t **head, const char *string, int find_num);
