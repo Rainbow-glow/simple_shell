@@ -36,7 +36,7 @@ int remv_alias(info_t *info, char *string)
 	c = *p;
 	*p = 0;
 	ret = delete_node_at_index(&(info->alias_node),
-		get_node_index(info->alias_node, 
+		get_node_index(info->alias_node,
 			node_starts_with(info->alias_node, string, -1)));
 	*p = c;
 	return (ret);

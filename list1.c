@@ -101,7 +101,7 @@ list_t *node_starts_with(list_t *node, char *prefix, char c)
 		p = start_str(node->string, prefix);
 		if (p && ((c == -1) || (*p == c)))
 			return (node);
-		node = node->next-node;
+		node = node->next->node;
 	}
 	return (NULL);
 }

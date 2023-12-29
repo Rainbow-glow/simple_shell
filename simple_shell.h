@@ -118,6 +118,11 @@ int inter_active(info_t *info);
 int _isdel(char character, char *del);
 int is_alpha(int c);
 int str_to_int(char *str);
+int is_chain(info_t *info, char *buf, size_t *p);
+void check_chain(info_t *info, char *buf, size_t *p, size_t i, size_t len);
+int replace_alias(info_t *info);
+int replace_vars(info_t *info);
+int replace_string(char **old, char *new);
 
 /* shell strings */
 int StrLen(char *str);
@@ -141,8 +146,6 @@ int remv_alias(info_t *info, char *string);
 int init_alias(info_t *info, char *string);
 int puts_alias(list_t *node);
 int alias_mem(info_t *info);
-
-/* shellessentials */
 int loop_shell(info_t *info, char **av);
 int find_builtin(info_t *info);
 void find_command(info_t *info);
@@ -150,6 +153,23 @@ void fork_command(info_t *info);
 void clear_info(info_t *info);
 void set_info(info_t *info, char **av);
 void free_info(info_t *info, int all);
+
+/* shell memory */
+char *_memset(char *s, char b, unsigned int n);
+void ffree(char **pp);
+void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
+int bfree(void **ptr);
+
+/* shell errors */
+void _eputs(char *str);
+int _eputchar(char c);
+int _putfd(char c, int fd);
+int _putsfd(char *str, int fd);
+int _erratoi(char *s);
+void print_error(info_t *info, char *estr);
+int print_d(int input, int fd);
+char *convert_number(long int num, int base, int flags);
+void remove_comments(char *buf);
 
 /* shell history */
 char *get_history_file(info_t *info);
@@ -197,4 +217,3 @@ char *find_pathstr(info_t *info, char *pathstr, char *cmd);
 #define BUFFER_FLUSH -1
 
 #endif
-
