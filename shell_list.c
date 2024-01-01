@@ -92,8 +92,8 @@ size_t print_list_str(const list_t *h)
 
 	while (h)
 	{
-		_puts(h->string ? h->string : "(nil)");
-		_puts("\n");
+		_eputs(h->string ? h->string : "(nil)");
+		_eputs("\n");
 		h = h->next_node;
 		i++;
 	}

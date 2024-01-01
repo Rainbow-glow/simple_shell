@@ -129,7 +129,7 @@ int StrLen(char *str);
 int Strcmp(char *str1, char *str2);
 char *start_str(const char *cobas, const char *mindray);
 char *StrCat(char *dest, char *src);
-char StrCpy(char *dest, char *src);
+char *StrCpy(char *, char *);
 char *StrDup(const char *);
 void _write(char *);
 int put_char(char c);
