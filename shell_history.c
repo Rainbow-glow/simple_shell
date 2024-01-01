@@ -16,7 +16,7 @@ char *get_history_file(info_t *info)
 {
 	char *buf, *dir;
 
-	dir = get_env(info, "HOME=");
+	dir = gets_env(info, "HOME=");
 	if (!dir)
 		return (NULL);
 	buf = malloc(sizeof(char) * (StrLen(dir) + StrLen(HIST_FILE) + 2));
@@ -50,8 +50,8 @@ int write_history(info_t *info)
 		return (-1);
 	for (node = info->hist_node; node; node = node->next_node)
 	{
-		_puts_fd(node->str, fd);
-		_put_fd('\n', fd);
+		_putsfd(node->string, fd);
+		_putsfd('\n', fd);
 	}
 	_put_fd(BUF_FLUSH, fd);
 	close(fd);

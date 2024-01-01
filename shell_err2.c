@@ -43,11 +43,11 @@ int _erratoi(char *s)
  */
 void print_error(info_t *info, char *estr)
 {
-	_eputs(info->fname);
+	_eputs(info->filename);
 	_eputs(": ");
 	print_d(info->line_count, STDERR_FILENO);
 	_eputs(": ");
-	_eputs(info->argv[0]);
+	_eputs(info->argum_arr[0]);
 	_eputs(": ");
 	_eputs(estr);
 }
@@ -55,7 +55,7 @@ void print_error(info_t *info, char *estr)
 /**
  * print_d - function prints a decimal (integer) number (base 10)
  * @input: the input
- * @fd: the filedescriptor to write to
+ * @fd: the file descriptor to write to
  *
  * Return: number of characters printed
  */

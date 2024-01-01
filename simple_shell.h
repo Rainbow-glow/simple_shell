@@ -130,14 +130,15 @@ int Strcmp(char *str1, char *str2);
 char *start_str(const char *cobas, const char *mindray);
 char *StrCat(char *dest, char *src);
 char StrCpy(char *dest, char *src);
-char *StrDup(const char *str);
-void _write(char *str);
+char *StrDup(const char *);
+void _write(char *);
 int put_char(char c);
 char *StrnCpy(char *dest, char *src, int index);
 char *StrnCat(char *dest, char *src, int index);
 char *StrChr(char *s, char c);
 
 /* shell essentials */
+int main(int ac, char **av);
 int exit_me(info_t *info);
 int cd_me(info_t *info);
 int helper_me(info_t *info);
@@ -183,6 +184,7 @@ list_t *add_node(list_t **head, const char *string, int find_num);
 list_t *add_node_end(list_t **head, const char *string, int find_num);
 int delete_node_at_index(list_t **head, unsigned int index);
 size_t print_list_str(const list_t *h);
+void free_list(list_t **head_ptr);
 size_t list_len(const list_t *h);
 char **list_to_strings(list_t *head);
 size_t print_list(const list_t *h);
@@ -192,7 +194,7 @@ ssize_t get_node_index(list_t *head, list_t *node);
 /** environment builtins */
 char **get_env(info_t *info);
 int del_env(info_t *info, char *var);
-int set_env(info_t *info, char *var, char *value);
+int set_env(info_t *info, char *var, char *vad);
 int pwd_env(info_t *info);
 char *gets_env(info_t *info, const char *name);
 int init_env(info_t *info);

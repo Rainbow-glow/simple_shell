@@ -2,7 +2,7 @@
 
 char **get_env(info_t *info);
 int del_env(info_t *info, char *var);
-int set_env(info_t *info, char *var, char *value);
+int set_env(info_t *info, char *var, char *vad);
 
 /**
  * get_env - returns the string array copy of our environ
@@ -59,28 +59,28 @@ int del_env(info_t *info, char *var)
  * @info: Structure containing potential arguments. Used to maintain
  *        constant function prototype.
  * @var: the string env var property
- * @value: the string env var value
+ * @vad: the string env var value
  *  Return: Always 0
  */
-int set_env(info_t *info, char *var, char *value)
+int set_env(info_t *info, char *var, char *vad)
 {
 	char *buf = NULL;
 	list_t *node;
 	char *p;
 
-	if (!var || !value)
+	if (!var || !vad)
 		return (0);
 
-	buf = malloc(StrLen(var) + StrLen(value) + 2);
+	buf = malloc(StrLen(var) + StrLen(vad) + 2);
 	if (!buf)
 		return (1);
 	StrCpy(buf, var);
 	StrCat(buf, "=");
-	StrCat(buf, value);
+	StrCat(buf, vad);
 	node = info->env_copy;
 	while (node)
 	{
-		p = start_str(node->strng, var);
+		p = start_str(node->string, var);
 		if (p && *p == '=')
 		{
 			free(node->string);

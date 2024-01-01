@@ -63,9 +63,9 @@ int find_builtin(info_t *info)
 		{"exit", exit_me},
 		{"env", pwd_env},
 		{"help", helper_me},
-		{"history", my_histori},
-		{"setenv", my_setenv},
-		{"unsetenv", my_unsetenv},
+		{"history", myhistori},
+		{"setenv", init_env},
+		{"unsetenv", remv_env},
 		{"cd", cd_me},
 		{"alias", alias_mem},
 		{NULL, NULL}
@@ -115,7 +115,7 @@ void find_command(info_t *info)
 		if ((inter_active(info) || gets_env(info, "PATH=")
 			|| info->argum_arr[0][0] == '/') && exe_c(info, info->argum_arr[0]))
 			fork_command(info);
-		else if (*(info->argim) != '\n')
+		else if (*(info->argum) != '\n')
 		{
 			info->status = 127;
 			print_error(info, "not found\n");

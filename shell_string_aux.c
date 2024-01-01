@@ -1,8 +1,8 @@
 #include "simple_shell.h"
 
-char StrCpy(char *dest, char *src);
+char *StrCpy(char *dest, char *src);
 char *StrDup(const char *str);
-void _write(char *str);
+void _write(char *);
 int put_char(char c);
 /**
  * StrCpy - copies a string
@@ -11,7 +11,7 @@ int put_char(char c);
  *
  * Return: pointer to destination
  */
-char StrCpy(char *dest, char *src)
+char *StrCpy(char *dest, char *src)
 {
 	int a = 0;
 

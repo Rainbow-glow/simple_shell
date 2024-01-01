@@ -43,7 +43,7 @@ void set_info(info_t *info, char **av)
 			;
 		info->argum_count = i;
 
-		remv_alias(info);
+		replace_alias(info);
 		replace_vars(info);
 	}
 }
@@ -73,6 +73,6 @@ void free_info(info_t *info, int all)
 		bfree((void **)info->cmd_buf);
 		if (info->readfd > 2)
 			close(info->readfd);
-		e_putchar(BUF_FLUSH);
+		_eputchar(BUF_FLUSH);
 	}
 }

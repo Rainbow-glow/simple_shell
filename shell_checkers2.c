@@ -137,7 +137,7 @@ int replace_vars(info_t *info)
 		if (node)
 		{
 			replace_string(&(info->argum_arr[i]),
-				StrDup(_strchr(node->string, '=') + 1));
+				StrDup(StrChr(node->string, '=') + 1));
 			continue;
 		}
 		replace_string(&info->argum_arr[i], StrDup(""));

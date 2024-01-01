@@ -170,7 +170,7 @@ int get_line(info_t *info, char **ptr, size_t *length)
  */
 void C_Handler(__attribute__((unused))int sig_num)
 {
-	_puts("\n");
-	_puts("$ ");
+	_eputs("\n");
+	_eputs("$ ");
 	put_char(BUF_FLUSH);
 }
