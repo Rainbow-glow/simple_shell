@@ -1,4 +1,4 @@
-#include "simpe_shell.h"
+#include "simple_shell.h"
 
 void help_env(void);
 void help_setenv(void);
