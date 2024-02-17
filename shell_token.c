@@ -1,98 +1,104 @@
 #include "simple_shell.h"
 
-char **str_to_wrds(char *str, char *d);
-char **str_to_words_del(char *str, char d);
+int token_len(char *str, char *delim);
+int count_tokens(char *str, char *delim);
+char **_strtok(char *line, char *delim);
 
 /**
- * **str_to_wrds - splits a string into words and Repeat delimiters are ignored
- * @str: the input string
- * @d: the delimeter string
- * Return: a pointer to an array of strings, or NULL on failure
+ * token_len - Locates the delimiter index marking the end
+ *             of the first token contained within a string.
+ * @str: The string to be searched.
+ * @delim: The delimiter character.
+ *
+ * Return: The delimiter index marking the end of
+ *         the intitial token pointed to be str.
  */
-
-char **str_to_wrds(char *str, char *d)
+int token_len(char *str, char *delim)
 {
-	int i, j, k, m, num_words = 0;
-	char **s;
+	int index = 0, len = 0;
 
-	if (str == NULL || str[0] == 0)
-		return (NULL);
-	if (!d)
-		d = " ";
-	for (i = 0; str[i] != '\0'; i++)
-		if (!_isdel(str[i], d) && (_isdel(str[i + 1], d) ||
-			!str[i + 1]))
-			num_words++;
-
-	if (num_words == 0)
-		return (NULL);
-	s = malloc((1 + num_words) * sizeof(char *));
-	if (!s)
-		return (NULL);
-	for (i = 0, j = 0; j < num_words; j++)
+	while (*(str + index) && *(str + index) != *delim)
 	{
-		while (_isdel(str[i], d))
-			i++;
-		k = 0;
-		while (!_isdel(str[i + k], d) && str[i + k])
-			k++;
-		s[j] = malloc((k + 1) * sizeof(char));
-		if (!s[j])
-		{
-			for (k = 0; k < j; k++)
-				free(s[k]);
-			free(s);
-			return (NULL);
-		}
-		for (m = 0; m < k; m++)
-			s[j][m] = str[i++];
-		s[j][m] = 0;
+		len++;
+		index++;
 	}
-	s[j] = NULL;
-	return (s);
+
+	return (len);
 }
 
 /**
- * **str_to_wrds_del - splits a string into words
- * @str: the input string
- * @d: the delimeter
- * Return: a pointer to an array of strings, or NULL on failure
+ * count_tokens - Counts the number of delimited
+ *                words contained within a string.
+ * @str: The string to be searched.
+ * @delim: The delimiter character.
+ *
+ * Return: The number of words contained within str.
  */
-char **str_to_wrds_del(char *str, char d)
+int count_tokens(char *str, char *delim)
 {
-	int i, j, k, m, num_words = 0;
-	char **s;
+	int index, tokens = 0, len = 0;
 
-	if (str == NULL || str[0] == 0)
-		return (NULL);
-	for (i = 0; str[i] != '\0'; i++)
-		if ((str[i] != d && str[i + 1] == d) ||
-		    (str[i] != d && !str[i + 1]) || str[i + 1] == d)
-			num_words++;
-	if (num_words == 0)
-		return (NULL);
-	s = malloc((1 + num_words) * sizeof(char *));
-	if (!s)
-		return (NULL);
-	for (i = 0, j = 0; j < num_words; j++)
+	for (index = 0; *(str + index); index++)
+		len++;
+
+	for (index = 0; index < len; index++)
 	{
-		while (str[i] == d && str[i] != d)
-			i++;
-		k = 0;
-		while (str[i + k] != d && str[i + k] && str[i + k] != d)
-			k++;
-		s[j] = malloc((k + 1) * sizeof(char));
-		if (!s[j])
+		if (*(str + index) != *delim)
 		{
-			for (k = 0; k < j; k++)
-				free(s[k]);
-			free(s);
+			tokens++;
+			index += token_len(str + index, delim);
+		}
+	}
+
+	return (tokens);
+}
+
+/**
+ * _strtok - Tokenizes a string.
+ * @line: The string.
+ * @delim: The delimiter character to tokenize the string by.
+ *
+ * Return: A pointer to an array containing the tokenized words.
+ */
+char **_strtok(char *line, char *delim)
+{
+	char **ptr;
+	int index = 0, tokens, t, letters, l;
+
+	tokens = count_tokens(line, delim);
+	if (tokens == 0)
+		return (NULL);
+
+	ptr = malloc(sizeof(char *) * (tokens + 2));
+	if (!ptr)
+		return (NULL);
+
+	for (t = 0; t < tokens; t++)
+	{
+		while (line[index] == *delim)
+			index++;
+
+		letters = token_len(line + index, delim);
+
+		ptr[t] = malloc(sizeof(char) * (letters + 1));
+		if (!ptr[t])
+		{
+			for (index -= 1; index >= 0; index--)
+				free(ptr[index]);
+			free(ptr);
 			return (NULL);
 		}
-		for (m = 0; m < k; m++)
-			s[j][m] = str[i++];
-		s[j][m] = 0;
+
+		for (l = 0; l < letters; l++)
+		{
+			ptr[t][l] = line[index];
+			index++;
+		}
+
+		ptr[t][l] = '\0';
 	}
-	s[j] = NULL;
-	return (s);
+	ptr[t] = NULL;
+	ptr[t + 1] = NULL;
+
+	return (ptr);
 }

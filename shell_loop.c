@@ -1,164 +1,124 @@
 #include "simple_shell.h"
 
-int loop_shell(info_t *info, char **av);
-int find_builtin(info_t *info);
-void find_command(info_t *info);
-void fork_command(info_t *info);
-/**
- * loop_shell - main shell loop
- * @info: the parameter & return info struct
- * @av: the argument vector from main()
- *
- * Return: 0 on success, 1 on error, or error code
- */
-int loop_shell(info_t *info, char **av)
-{
-	ssize_t r = 0;
-	int builtin_ret = 0;
+int cant_open(char *file_path);
+int proc_file_commands(char *file_path, int *exe_ret);
 
-	while (r != -1 && builtin_ret != -2)
+/**
+ * cant_open - If the file doesn't exist or lacks proper permissions, print
+ * a cant open error.
+ * @file_path: Path to the supposed file.
+ *
+ * Return: 127.
+ */
+
+int cant_open(char *file_path)
+{
+	char *error, *hist_str;
+	int len;
+
+	hist_str = _itoa(hist);
+	if (!hist_str)
+		return (127);
+
+	len = _strlen(name) + _strlen(hist_str) + _strlen(file_path) + 16;
+	error = malloc(sizeof(char) * (len + 1));
+	if (!error)
 	{
-		clear_info(info);
-		if (inter_active(info))
-			puts("$ ");
-		putchar(BUF_FLUSH);
-		r = get_new_buf(info);
-		if (r != -1)
-		{
-			set_info(info, av);
-			builtin_ret = find_builtin(info);
-			if (builtin_ret == -1)
-				find_command(info);
-		}
-		else if (inter_active(info))
-			putchar('\n');
-		free_info(info, 0);
+		free(hist_str);
+		return (127);
 	}
-	write_history(info);
-	free_info(info, 1);
-	if (!inter_active(info) && info->status)
-		exit(info->status);
-	if (builtin_ret == -2)
-	{
-		if (info->error_code == -1)
-			exit(info->status);
-		exit(info->error_code);
-	}
-	return (builtin_ret);
+
+	_strcpy(error, name);
+	_strcat(error, ": ");
+	_strcat(error, hist_str);
+	_strcat(error, ": Can't open ");
+	_strcat(error, file_path);
+	_strcat(error, "\n");
+
+	free(hist_str);
+	write(STDERR_FILENO, error, len);
+	free(error);
+	return (127);
 }
 
 /**
- * find_builtin - finds a builtin command
- * @info: the parameter & return info struct
+ * proc_file_commands - Takes a file and attempts to run the commands stored
+ * within.
+ * @file_path: Path to the file.
+ * @exe_ret: Return value of the last executed command.
  *
- * Return: -1 if builtin not found,
- *			0 if builtin executed successfully,
- *			1 if builtin found but not successful,
- *			-2 if builtin signals exit()
+ * Return: If file couldn't be opened - 127.
+ *	   If malloc fails - -1.
+ *	   Otherwise the return value of the last command ran.
  */
-int find_builtin(info_t *info)
+int proc_file_commands(char *file_path, int *exe_ret)
 {
-	int i, built_in_ret = -1;
-	builtin_table builtintbl[] = {
-		{"exit", exit_me},
-		{"env", pwd_env},
-		{"help", helper_me},
-		{"history", myhistori},
-		{"setenv", init_env},
-		{"unsetenv", remv_env},
-		{"cd", cd_me},
-		{"alias", alias_mem},
-		{NULL, NULL}
-	};
+	ssize_t file, b_read, i;
+	unsigned int line_size = 0;
+	unsigned int old_size = 120;
+	char *line, **args, **front;
+	char buffer[120];
+	int ret;
 
-	for (i = 0; builtintbl[i].type; i++)
-		if (Strcmp(info->argum_arr[0], builtintbl[i].type) == 0)
-		{
-			info->line_count++;
-			built_in_ret = builtintbl[i].func(info);
-			break;
-		}
-	return (built_in_ret);
-}
-
-/**
- * find_command - finds a command in PATH
- * @info: the parameter & return info struct
- *
- * Return: void
- */
-void find_command(info_t *info)
-{
-	char *path = NULL;
-	int i, k;
-
-	info->path_finder = info->argum_arr[0];
-	if (info->line_count_flag == 1)
+	hist = 0;
+	file = open(file_path, O_RDONLY);
+	if (file == -1)
 	{
-		info->line_count++;
-		info->line_count_flag = 0;
+		*exe_ret = cant_open(file_path);
+		return (*exe_ret);
 	}
-	for (i = 0, k = 0; info->argum[i]; i++)
-		if (!_isdel(info->argum[i], " \t\n"))
-			k++;
-	if (!k)
-		return;
-
-	path = find_pathstr(info, gets_env(info, "PATH="), info->argum_arr[0]);
-	if (path)
+	line = malloc(sizeof(char) * old_size);
+	if (!line)
+		return (-1);
+	do {
+		b_read = read(file, buffer, 119);
+		if (b_read == 0 && line_size == 0)
+			return (*exe_ret);
+		buffer[b_read] = '\0';
+		line_size += b_read;
+		line = _realloc(line, old_size, line_size);
+		_strcat(line, buffer);
+		old_size = line_size;
+	} while (b_read);
+	for (i = 0; line[i] == '\n'; i++)
+		line[i] = ' ';
+	for (; i < line_size; i++)
 	{
-		info->path_finder = path;
-		fork_command(info);
-	}
-	else
-	{
-		if ((inter_active(info) || gets_env(info, "PATH=")
-			|| info->argum_arr[0][0] == '/') && exe_c(info, info->argum_arr[0]))
-			fork_command(info);
-		else if (*(info->argum) != '\n')
+		if (line[i] == '\n')
 		{
-			info->status = 127;
-			print_error(info, "not found\n");
+			line[i] = ';';
+			for (i += 1; i < line_size && line[i] == '\n'; i++)
+				line[i] = ' ';
 		}
 	}
-}
-
-/**
- * fork_command - forks an exec thread to run command
- * @info: the parameter & return info struct
- *
- * Return: void
- */
-void fork_command(info_t *info)
-{
-	pid_t child_pid;
-
-	child_pid = fork();
-	if (child_pid == -1)
+	variable_replacement(&line, exe_ret);
+	handle_line(&line, line_size);
+	args = _strtok(line, " ");
+	free(line);
+	if (!args)
+		return (0);
+	if (check_args(args) != 0)
 	{
-		/* TODO: PUT ERROR FUNCTION */
-		perror("Error:");
-		return;
+		*exe_ret = 2;
+		free_args(args, args);
+		return (*exe_ret);
 	}
-	if (child_pid == 0)
+	front = args;
+
+	for (i = 0; args[i]; i++)
 	{
-		if (execve(info->path_finder, info->argum_arr, get_env(info)) == -1)
+		if (_strncmp(args[i], ";", 1) == 0)
 		{
-			free_info(info, 1);
-			if (errno == EACCES)
-				exit(126);
-			exit(1);
-		}
-		/* TODO: PUT ERROR FUNCTION */
-	}
-	else
-	{
-		wait(&(info->status));
-		if (WIFEXITED(info->status))
-		{
-			info->status = WEXITSTATUS(info->status);
-			if (info->status == 126)
-				print_error(info, "Permission denied\n");
+			free(args[i]);
+			args[i] = NULL;
+			ret = call_args(args, front, exe_ret);
+			args = &args[++i];
+			i = 0;
 		}
 	}
+
+	ret = call_args(args, front, exe_ret);
+
+	free(front);
+	return (ret);
 }

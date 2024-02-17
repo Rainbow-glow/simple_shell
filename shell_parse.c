@@ -1,90 +1,141 @@
 #include "simple_shell.h"
 
-int exe_c(info_t *info, char *path);
-char *dupli_c(char *pathstr, int start, int stop);
-char *find_pathstr(info_t *info, char *pathstr, char *cmd);
+char *get_location(char *command);
+char *fill_path_dir(char *path);
+list_t *get_path_dir(char *path);
 
 /**
- * exe_c - determines if a file is an executable command
- * @info: the info struct
- * @path: path to the file
+ * get_location - Locates a command in the PATH.
+ * @command: The command to locate.
  *
- * Return: 1 if true, 0 otherwise
+ * Return: If an error occurs or the command cannot be located - NULL.
+ *         Otherwise - the full pathname of the command.
  */
-int exe_c(info_t *info, char *path)
+char *get_location(char *command)
 {
+	char **path, *temp;
+	list_t *dirs, *head;
 	struct stat st;
 
-	(void)info;
-	if (!path || stat(path, &st))
-		return (0);
-
-	if (st.st_mode & S_IFREG)
-	{
-		return (1);
-	}
-	return (0);
-}
-
-/**
- * dupli_c - duplicates characters
- * @pathstr: the PATH string
- * @start: starting index
- * @stop: stopping index
- *
- * Return: pointer to new buffer
- */
-char *dupli_c(char *pathstr, int start, int stop)
-{
-	static char buf[1024];
-	int i = 0, k = 0;
-
-	for (k = 0, i = start; i < stop; i++)
-		if (pathstr[i] != ':')
-			buf[k++] = pathstr[i];
-	buf[k] = 0;
-	return (buf);
-}
-
-/**
- * find_pathstr - finds this cmd in the PATH string
- * @info: the info struct
- * @pathstr: the PATH string
- * @cmd: the cmd to find
- *
- * Return: full path of cmd if found or NULL
- */
-char *find_pathstr(info_t *info, char *pathstr, char *cmd)
-{
-	int i = 0, curr_pos = 0;
-	char *path;
-
-	if (!pathstr)
+	path = _getenv("PATH");
+	if (!path || !(*path))
 		return (NULL);
-	if ((StrLen(cmd) > 2) && start_str(cmd, "./"))
+
+	dirs = get_path_dir(*path + 5);
+	head = dirs;
+
+	while (dirs)
 	{
-		if (exe_c(info, cmd))
-			return (cmd);
-	}
-	while (1)
-	{
-		if (!pathstr[i] || pathstr[i] == ':')
+		temp = malloc(_strlen(dirs->dir) + _strlen(command) + 2);
+		if (!temp)
+			return (NULL);
+
+		_strcpy(temp, dirs->dir);
+		_strcat(temp, "/");
+		_strcat(temp, command);
+
+		if (stat(temp, &st) == 0)
 		{
-			path = dupli_c(pathstr, curr_pos, i);
-			if (!*path)
-				StrCat(path, cmd);
-			else
-			{
-				StrCat(path, "/");
-				StrCat(path, cmd);
-			}
-			if (exe_c(info, path))
-				return (path);
-			if (!pathstr[i])
-				break;
-			curr_pos = i;
+			free_list(head);
+			return (temp);
 		}
-		i++;
+
+		dirs = dirs->next;
+		free(temp);
 	}
+
+	free_list(head);
+
 	return (NULL);
+}
+
+/**
+ * fill_path_dir - Copies path but also replaces leading/sandwiched/trailing
+ *		   colons (:) with current working directory.
+ * @path: The colon-separated list of directories.
+ *
+ * Return: A copy of path with any leading/sandwiched/trailing colons replaced
+ *	   with the current working directory.
+ */
+char *fill_path_dir(char *path)
+{
+	int i, length = 0;
+	char *path_copy, *pwd;
+
+	pwd = *(_getenv("PWD")) + 4;
+	for (i = 0; path[i]; i++)
+	{
+		if (path[i] == ':')
+		{
+			if (path[i + 1] == ':' || i == 0 || path[i + 1] == '\0')
+				length += _strlen(pwd) + 1;
+			else
+				length++;
+		}
+		else
+			length++;
+	}
+	path_copy = malloc(sizeof(char) * (length + 1));
+	if (!path_copy)
+		return (NULL);
+	path_copy[0] = '\0';
+	for (i = 0; path[i]; i++)
+	{
+		if (path[i] == ':')
+		{
+			if (i == 0)
+			{
+				_strcat(path_copy, pwd);
+				_strcat(path_copy, ":");
+			}
+			else if (path[i + 1] == ':' || path[i + 1] == '\0')
+			{
+				_strcat(path_copy, ":");
+				_strcat(path_copy, pwd);
+			}
+			else
+				_strcat(path_copy, ":");
+		}
+		else
+		{
+			_strncat(path_copy, &path[i], 1);
+		}
+	}
+	return (path_copy);
+}
+
+/**
+ * get_path_dir - Tokenizes a colon-separated list of
+ *                directories into a list_s linked list.
+ * @path: The colon-separated list of directories.
+ *
+ * Return: A pointer to the initialized linked list.
+ */
+list_t *get_path_dir(char *path)
+{
+	int index;
+	char **dirs, *path_copy;
+	list_t *head = NULL;
+
+	path_copy = fill_path_dir(path);
+	if (!path_copy)
+		return (NULL);
+	dirs = _strtok(path_copy, ":");
+	free(path_copy);
+	if (!dirs)
+		return (NULL);
+
+	for (index = 0; dirs[index]; index++)
+	{
+		if (add_node_end(&head, dirs[index]) == NULL)
+		{
+			free_list(head);
+			free(dirs);
+			return (NULL);
+		}
+	}
+
+	free(dirs);
+
+	return (head);
 }

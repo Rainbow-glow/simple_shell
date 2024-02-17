@@ -1,81 +1,86 @@
 #include "simple_shell.h"
 
-int StrLen(char *str);
-int Strcmp(char *str1, char *str2);
-char *start_str(const char *cobas, const char *mindray);
-char *StrCat(char *dest, char *src);
+int _strlen(const char *s);
+char *_strcpy(char *dest, const char *src);
+char *_strcat(char *dest, const char *src);
+char *_strncat(char *dest, const char *src, size_t n);
 
 /**
- * StrLen - gets the length of a string
- * @str: the string whose length to check
+ * _strlen - Returns the length of a string.
+ * @s: A pointer to the characters string.
  *
- * Return: length of a string
+ * Return: The length of the character string.
  */
-int StrLen(char *str)
+int _strlen(const char *s)
 {
-	int i = 0;
+	int length = 0;
 
-	if (!str)
-		return (0);
-
-	while (*str++)
-		i++;
-	return (i);
+	if (!s)
+		return (length);
+	for (length = 0; s[length]; length++)
+		;
+	return (length);
 }
 
 /**
- * Strcmp - sorts two strings in an orderly manner.
- * @str1: the first string
- * @str2: the second string
+ * _strcpy - Copies the string pointed to by src, including the
+ *           terminating null byte, to the buffer pointed by des.
+ * @dest: Pointer to the destination of copied string.
+ * @src: Pointer to the src of the source string.
  *
- * Return: negative if str1 < str2, positive if str1 > str2,
- * zero if str1 == str2
+ * Return: Pointer to dest.
  */
-int Strcmp(char *str1, char *str2)
+char *_strcpy(char *dest, const char *src)
 {
-	while (*str1 && *str2)
-	{
-		if (*str1 != *str2)
-			return (*str1 - *str2);
-		str1++;
-		str2++;
-	}
-	if (*str1 == *str2)
-		return (0);
-	else
-		return (*str1 < *str2 ? -1 : 1);
+	size_t i;
+
+	for (i = 0; src[i] != '\0'; i++)
+		dest[i] = src[i];
+	dest[i] = '\0';
+	return (dest);
 }
 
 /**
- * start_str - checks if mindray starts with cobas
- * @cobas: string to search
- * @mindray: the substring to find
+ * _strcat - Concantenates two strings.
+ * @dest: Pointer to destination string.
+ * @src: Pointer to source string.
  *
- * Return: address of next char of haystack or NULL
+ * Return: Pointer to destination string.
  */
-char *start_str(const char *cobas, const char *mindray)
+char *_strcat(char *dest, const char *src)
 {
-	while (*mindray)
-		if (*mindray++ != *cobas++)
-			return (NULL);
-	return ((char *)cobas);
+	char *destTemp;
+	const char *srcTemp;
+
+	destTemp = dest;
+	srcTemp =  src;
+
+	while (*destTemp != '\0')
+		destTemp++;
+
+	while (*srcTemp != '\0')
+		*destTemp++ = *srcTemp++;
+	*destTemp = '\0';
+	return (dest);
 }
 
 /**
- * StrCat - concatenates two strings
- * @dest: the destination buffer
- * @src: the source buffer
+ * _strncat - Concantenates two strings where n number
+ *            of bytes are copied from source.
+ * @dest: Pointer to destination string.
+ * @src: Pointer to source string.
+ * @n: n bytes to copy from src.
  *
- * Return: pointer to destination buffer
+ * Return: Pointer to destination string.
  */
-char *StrCat(char *dest, char *src)
+char *_strncat(char *dest, const char *src, size_t n)
 {
-	char *output = dest;
+	size_t dest_len = _strlen(dest);
+	size_t i;
 
-	while (*dest)
-		dest++;
-	while (*src)
-		*dest++ = *src++;
-	*dest = *src;
-	return (output);
+	for (i = 0; i < n && src[i] != '\0'; i++)
+		dest[dest_len + i] = src[i];
+	dest[dest_len + i] = '\0';
+
+	return (dest);
 }
